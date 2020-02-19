@@ -4,7 +4,7 @@
     RUN apk add curl && curl -L ${QEMU_URL} | tar zxvf - -C . && mv qemu-3.0.0+resin-aarch64/qemu-aarch64-static .
 
 # :: Header
-    FROM arm64v8/php:7.2.27-apache-stretch
+    FROM arm64v8/php:7.4.2-apache-buster
     COPY --from=builder qemu-aarch64-static /usr/bin
 
 # :: Run

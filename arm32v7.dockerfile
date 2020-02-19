@@ -4,7 +4,7 @@
     RUN apk add curl && curl -L ${QEMU_URL} | tar zxvf - -C . && mv qemu-3.0.0+resin-arm/qemu-arm-static .
 
 # :: Header
-    FROM arm32v7/php:7.2.27-apache-stretch
+    FROM arm32v7/php:7.4.2-apache-buster
     COPY --from=builder qemu-arm-static /usr/bin
 
 # :: Run
