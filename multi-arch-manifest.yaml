@@ -1,0 +1,21 @@
+image: 11notes/php:latest
+manifests:
+  - image: 11notes/php:amd64
+    platform:
+      architecture: amd64
+      os: linux
+  - image: 11notes/php:arm32v5
+    platform:
+      architecture: arm
+      os: linux
+      variant: v5
+  - image: 11notes/php:arm32v7
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
+  - image: 11notes/php:arm64v8
+    platform:
+      architecture: arm64
+      os: linux
+      variant: v8
