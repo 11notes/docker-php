@@ -1,0 +1,23 @@
+{
+  "image": "11notes/php",
+  "name": "php",
+  "root": "/php",
+  "semver": {
+    "version": "8.5.12"
+  },
+  "readme": {
+    "description": "run php with php-fpm rootless and distroless.",
+    "introduction": "PHP is a popular general-purpose scripting language that is especially suited to web development. Fast, flexible and pragmatic, PHP powers everything from your blog to the most popular websites in the world.",
+    "built": {
+      "php-src": "https://github.com/php/php-src"
+    },
+    "distroless": {
+      "layers": [
+        "11notes/distroless"
+      ]
+    },
+    "comparison": {
+      "image": "php:8.5.12"
+    }
+  }
+}
