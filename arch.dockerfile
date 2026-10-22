@@ -6,9 +6,8 @@
       APP_GID=1000
 
 # :: FOREIGN IMAGES
-  FROM 11notes/util AS util
-  FROM 11notes/util:bin AS util-bin
   FROM 11notes/distroless AS distroless
+  FROM 11notes/distroless:ds AS distolless-ds
 
 
 # ╔═════════════════════════════════════════════════════╗
@@ -16,9 +15,9 @@
 # ╚═════════════════════════════════════════════════════╝
 # :: PHP
   FROM alpine AS build
-  ARG APP_VERSION
-  COPY --from=util-bin / /
   USER root
+  ARG APP_VERSION
+  COPY --from=distolless-ds / /
 
   RUN set -eux; \
     apk --update --no-cache add \
@@ -91,7 +90,8 @@
 
   RUN set -eux; \
     ds /usr/local/bin/php; \
-    ds /usr/local/sbin/php-fpm;
+    ds /usr/local/sbin/php-fpm; \
+    ds --bye;
 
   RUN set -eux; \
     echo $(php --version) | grep -q "${APP_VERSION}";
@@ -123,12 +123,13 @@ EOF
 
 # :: FILE SYSTEM
   FROM alpine AS file-system
-  ARG APP_ROOT \
-      APP_VERSION
-  COPY --from=util / /
+  USER root
+  ARG APP_ROOT
 
   RUN set -ex; \
-    eleven mkdir /distroless${APP_ROOT}/{etc,var,run};
+    mkdir -p /distroless${APP_ROOT}/etc; \
+    mkdir -p /distroless${APP_ROOT}/var; \
+    mkdir -p /distroless${APP_ROOT}/run;
 
 
 # ╔═════════════════════════════════════════════════════╗
