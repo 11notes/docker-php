@@ -9,15 +9,15 @@ x-lockdown: &lockdown
 
 services:
   php:
-    image: "11notes/php:8.5.12"
+    image: "11notes/php:8.2.35"
     <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
     networks:
       frontend:
     volumes:
-      - "fpm.etc:/php/etc"
-      - "fpm.var:/php/var"
+      - "php.etc:/php/etc"
+      - "php.var:/php/var"
     tmpfs:
       # require for read-only container
       - "/php/run:uid=1000,gid=1000"
