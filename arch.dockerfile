@@ -100,6 +100,7 @@
     rm -rf /usr/local/bin/.eleven; \
     rm -f /usr/local/bin/eleven; \
     mkdir -p \
+      /distroless/lib \
       /distroless/usr/local \
       /distroless/php/etc; \
     cp -a /usr/local/bin /usr/local/sbin /usr/local/lib /distroless/usr/local/; \
