@@ -417,7 +417,7 @@ jobs:
                       if(imageRe[re].test(file)) dependencies.push(re);
                     }
 
-                    core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', JSON.stringify(dependencies));
+                    core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', Buffer.from(JSON.stringify(dependencies)).toString('base64'));
                   }catch(e){
                     throw new Error(`could not open ./${dockerfile}: ${e}`);
                   }
