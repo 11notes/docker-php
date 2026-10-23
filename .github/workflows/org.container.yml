@@ -396,19 +396,29 @@ jobs:
                 if(existsSync(path)){
                   try{
                     const file = readFileSync(path).toString();
-                    switch(true){
-                      case /11notes\/alpine\:stable/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', '11notes-alpine-stable'); break;
-                      case /11notes\/go\:\$\{APP_GO_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'go'); break;
-                      case /11notes\/python\:\$\{APP_PYTHON_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'python'); break;
-                      case /11notes\/php\:\$\{APP_PHP_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'php'); break;
-                      case /11notes\/php-fpm\:\$\{APP_PHP_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'php'); break;
-                      case /11notes\/dotnetsdk\:\$\{APP_DOTNET8_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet8'); break;
-                      case /11notes\/dotnetsdk\:\$\{APP_DOTNET9_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet9'); break;
-                      case /11notes\/dotnetsdk\:\$\{APP_DOTNET10_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet10'); break;
-                      case /11notes\/dotnetsdk\:\$\{APP_DOTNET11_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet11'); break;
-                      case /11notes\/node\:\$\{APP_NODE_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'node'); break;
-                      case /11notes\/node\:stable/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'node_stable'); break;
+                    const dependencies = [];
+                    const imageRe = [];
+                    const file = 'FROM 11notes/alpine:stable';
+                    imageRe['alpine'] = /11notes\/alpine\:stable/ig;
+                    imageRe['go'] = /11notes\/go\:\$\{APP_GO_VERSION\}/ig;
+                    imageRe['python'] = /11notes\/python\:\$\{APP_PYTHON_VERSION\}/ig;
+                    imageRe['node'] = /11notes\/node\:stable/ig;
+                    imageRe['php'] = /11notes\/php\:\$\{APP_PHP_VERSION\}/ig;
+                    imageRe['php-fpm'] = /11notes\/php\:\$\{APP_PHP_VERSION\}/ig;
+                    imageRe['dotnet:8'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET8_VERSION\}/ig;
+                    imageRe['dotnet:9'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET9_VERSION\}/ig;
+                    imageRe['dotnet:10'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET10_VERSION\}/ig;
+                    imageRe['dotnet:11'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET11_VERSION\}/ig;
+                    imageRe['distroless:ds'] = /11notes\distroless\:ds/ig;
+                    imageRe['distroless:tini'] = /11notes\distroless\:tini/ig;
+                    imageRe['distroless:nc'] = /11notes\distroless\:nc/ig;
+                    imageRe['distroless:localhealth'] = /11notes\distroless\:localhealth/ig;
+
+                    for(const re in imageRe){
+                      if(imageRe[re].test(file)) dependencies.push(re);
                     }
+
+                    core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', JSON.stringify(dependencies));
                   }catch(e){
                     throw new Error(`could not open ./${dockerfile}: ${e}`);
                   }
@@ -453,9 +463,9 @@ jobs:
           wait-for-completion: false
           workflow: register.dependency.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          repo: 11notes/static
+          repo: 11notes/CICD
           ref: master
-          inputs: '{ "dependency":"${{ env.WORKFLOW_IMAGE_DEPENDENCY }}", "repository":"${{ github.event.repository.name }}" }'
+          inputs: '{ "dependencies":"${{ env.WORKFLOW_IMAGE_DEPENDENCY }}", "repository":"${{ github.event.repository.name }}" }'
 
 
       # ╔═════════════════════════════════════════════════════╗
