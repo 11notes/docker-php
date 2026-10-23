@@ -418,11 +418,11 @@ jobs:
                     }
 
                     if(dependencies.length > 0){
-                      opt.docker.dependencies = dependencies;
+                      docker.dependencies = dependencies;
                       core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', Buffer.from(JSON.stringify(dependencies)).toString('base64'));
                     }
                   }catch(e){
-                    throw new Error(`could not open ./${dockerfile}: ${e}`);
+                    throw new Error(`could not parse ./${dockerfile}: ${e}`);
                   }
                 }else{
                   throw new Error(`./${dockerfile} does not exist`);
