@@ -408,16 +408,19 @@ jobs:
                     imageRe['dotnet:9'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET9_VERSION\}/ig;
                     imageRe['dotnet:10'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET10_VERSION\}/ig;
                     imageRe['dotnet:11'] = /11notes\/dotnetsdk\:\$\{APP_DOTNET11_VERSION\}/ig;
-                    imageRe['distroless:ds'] = /11notes\distroless\:ds/ig;
-                    imageRe['distroless:tini'] = /11notes\distroless\:tini/ig;
-                    imageRe['distroless:nc'] = /11notes\distroless\:nc/ig;
-                    imageRe['distroless:localhealth'] = /11notes\distroless\:localhealth/ig;
+                    imageRe['distroless:ds'] = /11notes\/distroless\:ds/ig;
+                    imageRe['distroless:tini'] = /11notes\/distroless\:tini/ig;
+                    imageRe['distroless:nc'] = /11notes\/distroless\:nc/ig;
+                    imageRe['distroless:localhealth'] = /11notes\/distroless\:localhealth/ig;
 
                     for(const re in imageRe){
                       if(imageRe[re].test(file)) dependencies.push(re);
                     }
 
-                    core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', Buffer.from(JSON.stringify(dependencies)).toString('base64'));
+                    if(dependencies.length > 0){
+                      opt.docker.dependencies = dependencies;
+                      core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', Buffer.from(JSON.stringify(dependencies)).toString('base64'));
+                    }
                   }catch(e){
                     throw new Error(`could not open ./${dockerfile}: ${e}`);
                   }
