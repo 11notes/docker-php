@@ -398,7 +398,6 @@ jobs:
                     const file = readFileSync(path).toString();
                     const dependencies = [];
                     const imageRe = [];
-                    const file = 'FROM 11notes/alpine:stable';
                     imageRe['alpine'] = /11notes\/alpine\:stable/ig;
                     imageRe['go'] = /11notes\/go\:\$\{APP_GO_VERSION\}/ig;
                     imageRe['python'] = /11notes\/python\:\$\{APP_PYTHON_VERSION\}/ig;
