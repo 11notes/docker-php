@@ -16,7 +16,11 @@
 # :: PHP
   FROM alpine AS build
   USER root
-  ARG APP_VERSION
+  ARG APP_VERSION \
+      CFLAGS="-fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
+  ENV CFLAGS="${CFLAGS}" \
+      CPPFLAGS="${CFLAGS}" \
+      LDFLAGS="-Wl,-O1 -pie"
   COPY --from=distroless-ds / /
 
   RUN set -eux; \
@@ -44,7 +48,6 @@
       sqlite-dev \
       zlib-dev \
       postgresql18-dev \
-      postgresql-pgvector-dev \
       imap-dev \
       krb5-dev;
 
@@ -54,9 +57,6 @@
     rm php.tar.xz;
 
   RUN set -eux; \
-    CFLAGS="-fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"; \
-    CPPFLAGS="${CFLAGS}"; \
-    LDFLAGS="-Wl,-O1 -pie"; \
     ./configure \
       --prefix=/usr/local \
       --sysconfdir=/php/etc \
@@ -72,7 +72,9 @@
       --enable-opcache \
       --enable-pcntl \
       --enable-sockets \
-      --enable-gd --with-jpeg --with-freetype \
+      --enable-gd \
+      --with-jpeg \
+      --with-freetype \
       --with-curl \
       --with-openssl \
       --with-zlib \
@@ -85,26 +87,20 @@
       --with-imap \
       --with-kerberos \
       --with-imap-ssl; \
-    make -j $(nproc); \
-    make install;
+    make -j $(nproc) 2>&1 > /dev/null; \
+    make install 2>&1 > /dev/null;
 
   RUN set -eux; \
-    ds /usr/local/bin/php; \
-    ds /usr/local/sbin/php-fpm; \
-    ds --bye;
-
-  RUN set -eux; \
-    echo $(php --version) | grep -q "${APP_VERSION}";
-
-  RUN set -eux; \
-    rm -rf /usr/local/bin/.eleven; \
-    rm -f /usr/local/bin/eleven; \
     mkdir -p \
       /distroless/lib \
-      /distroless/usr/local \
-      /distroless/php/etc; \
-    cp -a /usr/local/bin /usr/local/sbin /usr/local/lib /distroless/usr/local/; \
-    find /usr/local/bin /usr/local/sbin /usr/local/lib/php/extensions -type f \
+      /distroless/php/etc \
+      /distroless/usr/local/bin; \
+    cp /usr/local/bin/php /distroless/usr/local/bin/; \
+    cp /usr/local/sbin/php-fpm /distroless/usr/local/bin/; \
+    EXT_DIR="$(php-config --extension-dir)"; \
+    mkdir -p "/distroless${EXT_DIR}"; \
+    cp "${EXT_DIR}"/*.so "/distroless${EXT_DIR}/"; \
+    { echo /usr/local/bin/php; echo /usr/local/sbin/php-fpm; ls "${EXT_DIR}"/*.so; } \
       | while read -r f; do ldd "$f" 2>/dev/null || true; done \
       | awk '/=>/ {print $3}' | sort -u > /tmp/libs; \
     while read -r LIB; do \
@@ -112,14 +108,15 @@
       cp -L "${LIB}" "/distroless${LIB}"; \
     done < /tmp/libs; \
     cp -L /lib/ld-musl-*.so.1 /distroless/lib/; \
-    cp /php.ini-production /distroless/php/etc/php.ini; \
-    sed -i 's|;error_log = syslog|error_log = /proc/self/fd/2|' /distroless/php/etc/php.ini;
+    cp /php.ini-production /distroless/php/etc/php.ini;
 
-  COPY <<'EOF' /distroless/php/etc/php-fpm.conf
-[global]
-error_log = /proc/self/fd/2
-daemonize = no
-EOF
+  RUN set -eux; \
+    ds /distroless/usr/local/bin/php; \
+    ds /distroless/usr/local/bin/php-fpm; \
+    ds --bye;
+
+  RUN set -eux; \
+    echo $(php --version) | grep -q "${APP_VERSION}"; 
 
 
 # :: FILE SYSTEM
@@ -167,5 +164,5 @@ EOF
 
 # :: EXECUTE
   USER ${APP_UID}:${APP_GID}
-  ENTRYPOINT ["/usr/sbin/php-fpm"]
-  CMD ["-F", "--pid", "/php/run/fpm.pid", "-c", "/php/etc/php.ini", "-y", "/php/etc/php-fpm.conf", "-O"]
+  ENTRYPOINT ["/usr/local/bin/php"]
+  CMD ["--version"]
