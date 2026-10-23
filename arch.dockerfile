@@ -7,7 +7,7 @@
 
 # :: FOREIGN IMAGES
   FROM 11notes/distroless AS distroless
-  FROM 11notes/distroless:ds AS distolless-ds
+  FROM 11notes/distroless:ds AS distroless-ds
 
 
 # ╔═════════════════════════════════════════════════════╗
@@ -17,7 +17,7 @@
   FROM alpine AS build
   USER root
   ARG APP_VERSION
-  COPY --from=distolless-ds / /
+  COPY --from=distroless-ds / /
 
   RUN set -eux; \
     apk --update --no-cache add \
