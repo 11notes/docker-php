@@ -73,6 +73,9 @@
       --enable-pcntl \
       --enable-sockets \
       --enable-gd \
+      --enable-soap \
+      --enable-sysvsem \
+      --enable-sysvshm \
       --with-jpeg \
       --with-freetype \
       --with-curl \
