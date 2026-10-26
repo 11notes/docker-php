@@ -20,5 +20,7 @@
     "comparison": {
       "image": "php:8.5.12"
     }
-  }
+  },
+  "unraid": true,
+  "nobody": true
 }
