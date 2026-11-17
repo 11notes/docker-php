@@ -19,15 +19,6 @@ jobs:
         uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 # v1.3.1
         with:
           workflow: org.build.yml
-          wait-for-completion: true
-          token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "ref":"${{ github.ref_name }}", "etc":"${{ env.ACTIONS_TAG_BASE64JSON }}", "wait":"true" }'
-
-      - name: update GUI
-        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
-        with:
           wait-for-completion: false
-          workflow: tags.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          repo: 11notes/docker-kms-gui
-          ref: master
+          inputs: '{ "ref":"${{ github.ref_name }}", "etc":"${{ env.ACTIONS_TAG_BASE64JSON }}" }'
