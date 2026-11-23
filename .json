@@ -1,10 +1,10 @@
 {
   "image": "11notes/php",
-  "platform":"amd64,arm64",
+  "platform": "amd64,arm64",
   "name": "php",
   "root": "/php",
   "semver": {
-    "version": "8.5.12"
+    "version": "8.6.0"
   },
   "readme": {
     "description": "run php with php-fpm rootless and distroless.",
