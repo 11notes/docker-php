@@ -93,17 +93,18 @@
     make -j $(nproc) 2>&1 > /dev/null; \
     make install 2>&1 > /dev/null;
 
-  RUN set -eux; \
-    mkdir -p \
-      /distroless/lib \
-      /distroless/php/etc \
-      /distroless/usr/local/bin; \
+RUN set -eux; \
+    mkdir -p /distroless/lib /distroless/php/etc /distroless/usr/local/bin; \
     cp /usr/local/bin/php /distroless/usr/local/bin/; \
     cp /usr/local/sbin/php-fpm /distroless/usr/local/bin/; \
     EXT_DIR="$(php-config --extension-dir)"; \
     mkdir -p "/distroless${EXT_DIR}"; \
-    cp "${EXT_DIR}"/*.so "/distroless${EXT_DIR}/"; \
-    { echo /usr/local/bin/php; echo /usr/local/sbin/php-fpm; ls "${EXT_DIR}"/*.so; } \
+    for so in "${EXT_DIR}"/*.so; do \
+      [ -e "${so}" ] || continue; \
+      cp "${so}" "/distroless${EXT_DIR}/"; \
+    done; \
+    { echo /usr/local/bin/php; echo /usr/local/sbin/php-fpm; \
+      find "${EXT_DIR}" -name '*.so'; } \
       | while read -r f; do ldd "$f" 2>/dev/null || true; done \
       | awk '/=>/ {print $3}' | sort -u > /tmp/libs; \
     while read -r LIB; do \
@@ -111,7 +112,7 @@
       cp -L "${LIB}" "/distroless${LIB}"; \
     done < /tmp/libs; \
     cp -L /lib/ld-musl-*.so.1 /distroless/lib/; \
-    cp /php.ini-production /distroless/php/etc/php.ini;
+    sed -E '/^[[:space:]]*;?[[:space:]]*zend_extension[[:space:]]*=.*opcache/d' /php.ini-production > /distroless/php/etc/php.ini
 
   RUN set -eux; \
     ds /distroless/usr/local/bin/php; \
